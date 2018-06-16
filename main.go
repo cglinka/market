@@ -33,11 +33,9 @@ type discount struct {
 // 	// iterate over available discounts
 // 	// update total
 // }
+var prods = make(map[string]product)
 
-func main() {
-
-	var prods = make(map[string]product)
-
+func init() {
 	prods["CH1"] = product{
 		name:  "Chai",
 		price: 3.11,
@@ -63,6 +61,8 @@ func main() {
 		price: 3.69,
 		code:  "OM1",
 	}
+}
+func main() {
 
 	discounts := make(map[string]discount)
 	// 1. BOGO -- Buy-One-Get-One-Free Special on Coffee. (Unlimited)
@@ -90,16 +90,25 @@ func main() {
 		qualification: map[string]int{"OM1": 1, "AP1": 1},
 	}
 
-	// CH1, AP1, AP1, AP1, MK1
+	// Build order with command line args
+	o := buildOrder(os.Args[1:])
+	fmt.Printf("subtotal: %d\n", o.total)
+	fmt.Printf("%+v\n", o)
+
+	// apply discounts
+	o = aapl(o)
+	o = chmk(o)
+	fmt.Printf("%+v\n", o)
+}
+
+func buildOrder(ol []string) *order {
 	o := &order{
 		items: map[string]int{},
 	}
-	o.orderList = os.Args[1:]
-	// o.orderList = []string{"CH1", "AP1", "AP1", "AP1", "MK1"}
 
-	fmt.Printf("%+v\n", o)
+	o.orderList = ol
+
 	for _, code := range o.orderList {
-		// fmt.Printf("%+v\n", o)
 		// add item to order
 		if _, ok := o.items[code]; ok {
 			o.items[code] += 1
@@ -109,12 +118,7 @@ func main() {
 		o.priceList = append(o.priceList, prods[code].price)
 		o.total += prods[code].price
 	}
-	fmt.Printf("subtotal: %d\n", o.total)
-	fmt.Printf("%+v\n", o)
-
-	o = aapl(o)
-	o = chmk(o)
-	fmt.Printf("%+v\n", o)
+	return o
 }
 
 // 2. APPL -- If you buy 3 or more bags of Apples, the price drops to $4.50.
