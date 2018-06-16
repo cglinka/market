@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 // product contains the information about each product
 type product struct {
@@ -12,8 +15,10 @@ type product struct {
 // Order is a map of product codes to quantities
 type order struct {
 	// items maps the product code to the quantity of that item.
-	items map[string]int
-	total float32
+	orderList []string
+	priceList []float32
+	items     map[string]int
+	total     float32
 }
 
 // discount contains the info about available discounts
@@ -86,18 +91,81 @@ func main() {
 	}
 
 	// CH1, AP1, AP1, AP1, MK1
-	orderList := []string{"CH1", "AP1", "AP1", "MK1"}
+	o := &order{
+		items: map[string]int{},
+	}
+	o.orderList = os.Args[1:]
+	// o.orderList = []string{"CH1", "AP1", "AP1", "AP1", "MK1"}
 
-	o := &order{}
-	for _, code := range orderList {
+	fmt.Printf("%+v\n", o)
+	for _, code := range o.orderList {
+		// fmt.Printf("%+v\n", o)
 		// add item to order
-		o.items[code]++
+		if _, ok := o.items[code]; ok {
+			o.items[code] += 1
+		} else {
+			o.items[code] = 1
+		}
+		o.priceList = append(o.priceList, prods[code].price)
 		o.total += prods[code].price
 	}
 	fmt.Printf("subtotal: %d\n", o.total)
+	fmt.Printf("%+v\n", o)
 
-	for _, discs := range discounts {
+	o = aapl(o)
+	o = chmk(o)
+	fmt.Printf("%+v\n", o)
+}
 
+// 2. APPL -- If you buy 3 or more bags of Apples, the price drops to $4.50.
+func aapl(o *order) *order {
+	// d := discount{
+	// 	discountCode:  "AAPL",
+	// 	discount:      -1.5,
+	// 	qualification: map[string]int{"AP1": 3},
+	// }
+	if o.items["AP1"] >= 3 {
+		holderItemList := []string{}
+		holderPriceList := []float32{}
+		for i, item := range o.orderList {
+			if item == "AP1" {
+				holderItemList = append(holderItemList, item, "AAPL")
+				holderPriceList = append(holderPriceList, float32(-1.5), o.priceList[i])
+				o.total -= 1.5
+			} else {
+				holderItemList = append(holderItemList, item)
+				holderPriceList = append(holderPriceList, o.priceList[i])
+			}
+		}
+		o.orderList = holderItemList
+		o.priceList = holderPriceList
 	}
+	return o
+}
 
+// 3. CHMK -- Purchase a box of Chai and get milk free. (Limit 1)
+func chmk(o *order) *order {
+	// discount{
+	// 	discountCode:  "CHMK",
+	// 	discount:      -4.75,
+	// 	qualification: map[string]int{"MK1": 1, "CH1": 1},
+	// }
+
+	if o.items["MK1"] >= 1 && o.items["CH1"] >= 1 {
+		holderItemList := []string{}
+		holderPriceList := []float32{}
+		for i, item := range o.orderList {
+			if item == "MK1" {
+				holderItemList = append(holderItemList, item, "CHMK")
+				holderPriceList = append(holderPriceList, float32(-4.75), o.priceList[i])
+				o.total -= 1.5
+			} else {
+				holderItemList = append(holderItemList, item)
+				holderPriceList = append(holderPriceList, o.priceList[i])
+			}
+		}
+		o.orderList = holderItemList
+		o.priceList = holderPriceList
+	}
+	return o
 }
