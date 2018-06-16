@@ -91,7 +91,8 @@ func main() {
 	}
 
 	// Build order with command line args
-	o := buildOrder(os.Args[1:])
+	l := os.Args[1:]
+	o := buildOrder(l)
 	fmt.Printf("subtotal: %d\n", o.total)
 	fmt.Printf("%+v\n", o)
 
@@ -162,7 +163,7 @@ func chmk(o *order) *order {
 			if item == "MK1" {
 				holderItemList = append(holderItemList, item, "CHMK")
 				holderPriceList = append(holderPriceList, float32(-4.75), o.priceList[i])
-				o.total -= 1.5
+				o.total -= 4.75
 			} else {
 				holderItemList = append(holderItemList, item)
 				holderPriceList = append(holderPriceList, o.priceList[i])
