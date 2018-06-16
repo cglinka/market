@@ -125,7 +125,8 @@ func TestAllDiscounts(t *testing.T) {
 
 	for _, tst := range tests {
 		t.Run(tst.name, func(t *testing.T) {
-			ordr := aapl(tst.o)
+			ordr := bogo(tst.o)
+			ordr = aapl(ordr)
 			ordr = chmk(ordr)
 			if !reflect.DeepEqual(ordr.total, tst.expectedTotal) {
 				t.Errorf("Order total of %v did not match expected order total of %v", ordr.total, tst.expectedTotal)

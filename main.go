@@ -97,6 +97,7 @@ func main() {
 	fmt.Printf("%+v\n", o)
 
 	// apply discounts
+	o = bogo(o)
 	o = aapl(o)
 	o = chmk(o)
 	fmt.Printf("%+v\n", o)
@@ -118,6 +119,21 @@ func buildOrder(ol []string) *order {
 		}
 		o.priceList = append(o.priceList, prods[code].price)
 		o.total += prods[code].price
+	}
+	return o
+}
+
+// 1. BOGO -- Buy-One-Get-One-Free Special on Coffee. (Unlimited)
+func bogo(o *order) *order {
+	// discount{
+	// 	discountCode:  "BOGO",
+	// 	discount:      -11.23,
+	// 	qualification: map[string]int{"CF1": 2},
+	// }
+
+	if o.items["CF1"] >= 2 {
+		numDiscounts := o.items["CF1"] / 2
+		o.total -= (float32(numDiscounts) * 11.23)
 	}
 	return o
 }
