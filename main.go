@@ -93,7 +93,7 @@ func main() {
 	// Build order with command line args
 	l := os.Args[1:]
 	o := buildOrder(l)
-	fmt.Printf("subtotal: %d\n", o.total)
+	fmt.Printf("subtotal: %v\n", o.total)
 	fmt.Printf("%+v\n", o)
 
 	// apply discounts
@@ -113,7 +113,7 @@ func buildOrder(ol []string) *order {
 	for _, code := range o.orderList {
 		// add item to order
 		if _, ok := o.items[code]; ok {
-			o.items[code] += 1
+			o.items[code]++
 		} else {
 			o.items[code] = 1
 		}
