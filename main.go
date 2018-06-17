@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 )
 
 // product contains the information about each product
 type product struct {
 	name  string
-	price float32
+	price int64
 	code  string
 }
 
@@ -16,15 +17,15 @@ type product struct {
 type order struct {
 	// items maps the product code to the quantity of that item.
 	orderList []string
-	priceList []float32
+	priceList []int64
 	items     map[string]int
-	total     float32
+	total     int64
 }
 
 // discount contains the info about available discounts
 type discount struct {
 	discountCode string
-	discount     float32
+	discount     int64
 	// qualification is a map of the required products and their quantities
 	qualification map[string]int
 }
@@ -38,27 +39,27 @@ var prods = make(map[string]product)
 func init() {
 	prods["CH1"] = product{
 		name:  "Chai",
-		price: 3.11,
+		price: 311,
 		code:  "CH1",
 	}
 	prods["AP1"] = product{
 		name:  "Apples",
-		price: 6.00,
+		price: 600,
 		code:  "AP1",
 	}
 	prods["CF1"] = product{
 		name:  "Coffee",
-		price: 11.23,
+		price: 1123,
 		code:  "CF1",
 	}
 	prods["MK1"] = product{
 		name:  "Milk",
-		price: 4.75,
+		price: 475,
 		code:  "MK1",
 	}
 	prods["OM1"] = product{
 		name:  "Oatmeal",
-		price: 3.69,
+		price: 369,
 		code:  "OM1",
 	}
 }
@@ -71,22 +72,22 @@ func main() {
 	// 4. APOM -- Purchase a bag of Oatmeal and get 50% off a bag of Apples
 	discounts["BOGO"] = discount{
 		discountCode:  "BOGO",
-		discount:      -11.23,
+		discount:      -1123,
 		qualification: map[string]int{"CF1": 2},
 	}
 	discounts["AAPL"] = discount{
 		discountCode:  "AAPL",
-		discount:      -1.5,
+		discount:      -150,
 		qualification: map[string]int{"AP1": 3},
 	}
 	discounts["CHMK"] = discount{
 		discountCode:  "CHMK",
-		discount:      -4.75,
+		discount:      -475,
 		qualification: map[string]int{"MK1": 1, "CH1": 1},
 	}
 	discounts["APOM"] = discount{
 		discountCode:  "APOM",
-		discount:      -3,
+		discount:      -300,
 		qualification: map[string]int{"OM1": 1, "AP1": 1},
 	}
 
@@ -133,7 +134,8 @@ func bogo(o *order) *order {
 
 	if o.items["CF1"] >= 2 {
 		numDiscounts := o.items["CF1"] / 2
-		o.total -= (float32(numDiscounts) * 11.23)
+		o.total -= (int64(numDiscounts) * int64(1123))
+		// TODO: update item/price lists
 	}
 	return o
 }
@@ -147,12 +149,12 @@ func aapl(o *order) *order {
 	// }
 	if o.items["AP1"] >= 3 {
 		holderItemList := []string{}
-		holderPriceList := []float32{}
+		holderPriceList := []int64{}
 		for i, item := range o.orderList {
 			if item == "AP1" {
 				holderItemList = append(holderItemList, item, "AAPL")
-				holderPriceList = append(holderPriceList, float32(-1.5), o.priceList[i])
-				o.total -= 1.5
+				holderPriceList = append(holderPriceList, int64(-150), o.priceList[i])
+				o.total -= int64(150)
 			} else {
 				holderItemList = append(holderItemList, item)
 				holderPriceList = append(holderPriceList, o.priceList[i])
@@ -174,12 +176,13 @@ func chmk(o *order) *order {
 
 	if o.items["MK1"] >= 1 && o.items["CH1"] >= 1 {
 		holderItemList := []string{}
-		holderPriceList := []float32{}
+		holderPriceList := []int64{}
 		for i, item := range o.orderList {
+			// TODO: limit times it can be applied
 			if item == "MK1" {
 				holderItemList = append(holderItemList, item, "CHMK")
-				holderPriceList = append(holderPriceList, float32(-4.75), o.priceList[i])
-				o.total -= 4.75
+				holderPriceList = append(holderPriceList, int64(-475), o.priceList[i])
+				o.total -= int64(475)
 			} else {
 				holderItemList = append(holderItemList, item)
 				holderPriceList = append(holderPriceList, o.priceList[i])
@@ -187,6 +190,24 @@ func chmk(o *order) *order {
 		}
 		o.orderList = holderItemList
 		o.priceList = holderPriceList
+	}
+	return o
+}
+
+// 4. APOM -- Purchase a bag of Oatmeal and get 50% off a bag of Apples
+// Interpretation: 1 bag of oatmeal = 1 apple discount, 2 oatmeal = 2 apple discount
+func apom(o *order) *order {
+	// discount{
+	// 	discountCode:  "APOM",
+	// 	discount:      -3,
+	// 	qualification: map[string]int{"OM1": 1, "AP1": 1},
+	// }
+	numOM := o.items["OM1"]
+	numAP := o.items["AP1"]
+	if numOM >= 1 && numAP >= 1 {
+		if math.Mod(float64(numOM), float64(numAP)) == 0 {
+			o.total = o.total - int64(numOM*300)
+		}
 	}
 	return o
 }
