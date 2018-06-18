@@ -151,6 +151,26 @@ func TestAPOMDiscount(t *testing.T) {
 			},
 			expectedTotal: 669,
 		},
+		{
+			name: "OM1 OM1 AP1",
+			o: &order{
+				orderList: []string{"OM1", "OM1", "AP1"},
+				priceList: []int64{369, 369, 600},
+				items:     map[string]int{"OM1": 2, "AP1": 1},
+				total:     1338,
+			},
+			expectedTotal: 1038,
+		},
+		{
+			name: "OM1 OM1 AP1 AP1",
+			o: &order{
+				orderList: []string{"OM1", "OM1", "AP1", "AP1"},
+				priceList: []int64{369, 369, 600, 600},
+				items:     map[string]int{"OM1": 2, "AP1": 2},
+				total:     1938,
+			},
+			expectedTotal: 1338,
+		},
 	}
 
 	for _, tst := range tests {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math"
 	"os"
 )
@@ -22,18 +21,6 @@ type order struct {
 	total     int64
 }
 
-// discount contains the info about available discounts
-type discount struct {
-	discountCode string
-	discount     int64
-	// qualification is a map of the required products and their quantities
-	qualification map[string]int
-}
-
-// func applyDiscount(o order, d []discount) (order, error) {
-// 	// iterate over available discounts
-// 	// update total
-// }
 var prods = make(map[string]product)
 
 func init() {
@@ -64,44 +51,16 @@ func init() {
 	}
 }
 func main() {
-
-	discounts := make(map[string]discount)
-	// 1. BOGO -- Buy-One-Get-One-Free Special on Coffee. (Unlimited)
-	// 2. APPL -- If you buy 3 or more bags of Apples, the price drops to $4.50.
-	// 3. CHMK -- Purchase a box of Chai and get milk free. (Limit 1)
-	// 4. APOM -- Purchase a bag of Oatmeal and get 50% off a bag of Apples
-	discounts["BOGO"] = discount{
-		discountCode:  "BOGO",
-		discount:      -1123,
-		qualification: map[string]int{"CF1": 2},
-	}
-	discounts["AAPL"] = discount{
-		discountCode:  "AAPL",
-		discount:      -150,
-		qualification: map[string]int{"AP1": 3},
-	}
-	discounts["CHMK"] = discount{
-		discountCode:  "CHMK",
-		discount:      -475,
-		qualification: map[string]int{"MK1": 1, "CH1": 1},
-	}
-	discounts["APOM"] = discount{
-		discountCode:  "APOM",
-		discount:      -300,
-		qualification: map[string]int{"OM1": 1, "AP1": 1},
-	}
-
 	// Build order with command line args
 	l := os.Args[1:]
 	o := buildOrder(l)
-	fmt.Printf("subtotal: %v\n", o.total)
-	fmt.Printf("%+v\n", o)
 
 	// apply discounts
 	o = bogo(o)
 	o = aapl(o)
 	o = chmk(o)
-	fmt.Printf("%+v\n", o)
+	o = apom(o)
+	// TODO: print order + total?
 }
 
 func buildOrder(ol []string) *order {
@@ -202,11 +161,14 @@ func apom(o *order) *order {
 	// 	discount:      -3,
 	// 	qualification: map[string]int{"OM1": 1, "AP1": 1},
 	// }
-	numOM := o.items["OM1"]
-	numAP := o.items["AP1"]
+	numOM := float64(o.items["OM1"])
+	numAP := float64(o.items["AP1"])
 	if numOM >= 1 && numAP >= 1 {
-		if math.Mod(float64(numOM), float64(numAP)) == 0 {
-			o.total = o.total - int64(numOM*300)
+		if numAP == numOM {
+			o.total -= int64(numOM) * 300
+		} else {
+			numDiscounts := math.Min(numOM, numAP)
+			o.total -= int64(numDiscounts) * 300
 		}
 	}
 	return o
