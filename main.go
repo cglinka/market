@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"math"
 	"os"
+	"strings"
 )
 
 // product contains the information about each product
@@ -61,13 +63,18 @@ func main() {
 	o = chmk(o)
 	o = apom(o)
 	// TODO: print order + total?
+
+	// fmt.Printf("%+v", o)
+	fmt.Printf("Basket: %v\n", strings.Join(o.orderList, ", "))
+	// fmt.Printf("Discount code applied: %v\n", o.items)
+	fmt.Printf("Total: %v\n", makeMoneyString(o.total))
+
 }
 
 func buildOrder(ol []string) *order {
 	o := &order{
 		items: map[string]int{},
 	}
-
 	o.orderList = ol
 
 	for _, code := range o.orderList {
@@ -81,6 +88,12 @@ func buildOrder(ol []string) *order {
 		o.total += prods[code].price
 	}
 	return o
+}
+
+// makeMoneyString converts the 'cents' into dollars and adds a dollar sign.
+func makeMoneyString(price int64) string {
+	p := float64(price) / float64(100)
+	return fmt.Sprintf("$%.2f", p)
 }
 
 // 1. BOGO -- Buy-One-Get-One-Free Special on Coffee. (Unlimited)
