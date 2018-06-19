@@ -62,13 +62,10 @@ func main() {
 	o = aapl(o)
 	o = chmk(o)
 	o = apom(o)
-	// TODO: print order + total?
 
-	// fmt.Printf("%+v", o)
+	// Print out basket and order total
 	fmt.Printf("Basket: %v\n", strings.Join(o.orderList, ", "))
-	// fmt.Printf("Discount code applied: %v\n", o.items)
 	fmt.Printf("Total: %v\n", makeMoneyString(o.total))
-
 }
 
 func buildOrder(ol []string) *order {
@@ -107,33 +104,23 @@ func bogo(o *order) *order {
 	if o.items["CF1"] >= 2 {
 		numDiscounts := o.items["CF1"] / 2
 		o.total -= (int64(numDiscounts) * int64(1123))
-		// TODO: update item/price lists
 	}
 	return o
 }
 
 // 2. APPL -- If you buy 3 or more bags of Apples, the price drops to $4.50.
 func aapl(o *order) *order {
-	// d := discount{
+	// discount{
 	// 	discountCode:  "AAPL",
 	// 	discount:      -1.5,
 	// 	qualification: map[string]int{"AP1": 3},
 	// }
 	if o.items["AP1"] >= 3 {
-		holderItemList := []string{}
-		holderPriceList := []int64{}
-		for i, item := range o.orderList {
+		for _, item := range o.orderList {
 			if item == "AP1" {
-				holderItemList = append(holderItemList, item, "AAPL")
-				holderPriceList = append(holderPriceList, int64(-150), o.priceList[i])
 				o.total -= int64(150)
-			} else {
-				holderItemList = append(holderItemList, item)
-				holderPriceList = append(holderPriceList, o.priceList[i])
 			}
 		}
-		o.orderList = holderItemList
-		o.priceList = holderPriceList
 	}
 	return o
 }
@@ -145,23 +132,13 @@ func chmk(o *order) *order {
 	// 	discount:      -4.75,
 	// 	qualification: map[string]int{"MK1": 1, "CH1": 1},
 	// }
-
 	if o.items["MK1"] >= 1 && o.items["CH1"] >= 1 {
-		holderItemList := []string{}
-		holderPriceList := []int64{}
-		for i, item := range o.orderList {
-			// TODO: limit times it can be applied
+		for _, item := range o.orderList {
 			if item == "MK1" {
-				holderItemList = append(holderItemList, item, "CHMK")
-				holderPriceList = append(holderPriceList, int64(-475), o.priceList[i])
 				o.total -= int64(475)
-			} else {
-				holderItemList = append(holderItemList, item)
-				holderPriceList = append(holderPriceList, o.priceList[i])
+				break
 			}
 		}
-		o.orderList = holderItemList
-		o.priceList = holderPriceList
 	}
 	return o
 }
