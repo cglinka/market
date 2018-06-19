@@ -116,11 +116,7 @@ func aapl(o *order) *order {
 	// 	qualification: map[string]int{"AP1": 3},
 	// }
 	if o.items["AP1"] >= 3 {
-		for _, item := range o.orderList {
-			if item == "AP1" {
-				o.total -= int64(150)
-			}
-		}
+		o.total -= int64(150) * int64(o.items["AP1"])
 	}
 	return o
 }
@@ -133,12 +129,7 @@ func chmk(o *order) *order {
 	// 	qualification: map[string]int{"MK1": 1, "CH1": 1},
 	// }
 	if o.items["MK1"] >= 1 && o.items["CH1"] >= 1 {
-		for _, item := range o.orderList {
-			if item == "MK1" {
-				o.total -= int64(475)
-				break
-			}
-		}
+		o.total -= int64(475)
 	}
 	return o
 }

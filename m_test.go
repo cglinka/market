@@ -128,6 +128,7 @@ func TestGivenCases(t *testing.T) {
 			ordr := bogo(tst.o)
 			ordr = aapl(ordr)
 			ordr = chmk(ordr)
+			ordr = apom(ordr)
 			if !reflect.DeepEqual(ordr.total, tst.expectedTotal) {
 				t.Errorf("Order total of %v did not match expected order total of %v", ordr.total, tst.expectedTotal)
 			}
@@ -193,6 +194,54 @@ func TestBOGODiscount(t *testing.T) {
 	}
 }
 
+func TestAAPLDiscount(t *testing.T) {
+	tests := []struct {
+		name          string
+		o             *order
+		expectedTotal int64
+	}{
+		{
+			name: "AP1",
+			o: &order{
+				orderList: []string{"AP1"},
+				priceList: []int64{600},
+				items:     map[string]int{"AP1": 1},
+				total:     600,
+			},
+			expectedTotal: 600,
+		},
+		{
+			name: "AP1 AP1 AP1",
+			o: &order{
+				orderList: []string{"AP1", "AP1", "AP1"},
+				priceList: []int64{600, 600, 600},
+				items:     map[string]int{"AP1": 3},
+				total:     1800,
+			},
+			expectedTotal: 1350,
+		},
+		{
+			name: "AP1 AP1 AP1",
+			o: &order{
+				orderList: []string{"AP1", "AP1", "AP1"},
+				priceList: []int64{600, 600, 600},
+				items:     map[string]int{"AP1": 3},
+				total:     1800,
+			},
+			expectedTotal: 1350,
+		},
+	}
+
+	for _, tst := range tests {
+		t.Run(tst.name, func(t *testing.T) {
+			ordr := aapl(tst.o)
+			if ordr.total != tst.expectedTotal {
+				t.Errorf("Expected tota: %v, recieved total: %v", tst.expectedTotal, ordr.total)
+			}
+		})
+	}
+}
+
 func TestCHMKDiscount(t *testing.T) {
 	tests := []struct {
 		name          string
@@ -218,6 +267,16 @@ func TestCHMKDiscount(t *testing.T) {
 				total:     1572,
 			},
 			expectedTotal: 1097,
+		},
+		{
+			name: "CH1 MK1 CH1",
+			o: &order{
+				orderList: []string{"CH1", "MK1", "CH1"},
+				priceList: []int64{311, 475, 311},
+				items:     map[string]int{"CH1": 2, "MK1": 1},
+				total:     1097,
+			},
+			expectedTotal: 622,
 		},
 	}
 
