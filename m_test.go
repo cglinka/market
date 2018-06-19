@@ -135,6 +135,102 @@ func TestGivenCases(t *testing.T) {
 	}
 }
 
+func TestBOGODiscount(t *testing.T) {
+	tests := []struct {
+		name          string
+		o             *order
+		expectedTotal int64
+	}{
+		{
+			name: "CF1 CF1",
+			o: &order{
+				orderList: []string{"CF1", "CF1"},
+				priceList: []int64{1123, 1123},
+				items:     map[string]int{"CF1": 2},
+				total:     2246,
+			},
+			expectedTotal: 1123,
+		},
+		{
+			name: "CF1 CF1 CF1",
+			o: &order{
+				orderList: []string{"CF1", "CF1", "CF1"},
+				priceList: []int64{1123, 1123, 1123},
+				items:     map[string]int{"CF1": 3},
+				total:     3369,
+			},
+			expectedTotal: 2246,
+		},
+		{
+			name: "CF1 CF1 CF1 CF1",
+			o: &order{
+				orderList: []string{"CF1", "CF1", "CF1", "CF1"},
+				priceList: []int64{1123, 1123, 1123, 1123},
+				items:     map[string]int{"CF1": 4},
+				total:     4492,
+			},
+			expectedTotal: 2246,
+		},
+		{
+			name: "CF1",
+			o: &order{
+				orderList: []string{"CF1"},
+				priceList: []int64{1123},
+				items:     map[string]int{"CF1": 1},
+				total:     1123,
+			},
+			expectedTotal: 1123,
+		},
+	}
+
+	for _, tst := range tests {
+		t.Run(tst.name, func(t *testing.T) {
+			ordr := bogo(tst.o)
+			if ordr.total != tst.expectedTotal {
+				t.Errorf("Expected tota: %v, recieved total: %v", tst.expectedTotal, ordr.total)
+			}
+		})
+	}
+}
+
+func TestCHMKDiscount(t *testing.T) {
+	tests := []struct {
+		name          string
+		o             *order
+		expectedTotal int64
+	}{
+		{
+			name: "CH1 MK1",
+			o: &order{
+				orderList: []string{"CH1", "MK1"},
+				priceList: []int64{311, 475},
+				items:     map[string]int{"CH1": 1, "MK1": 1},
+				total:     786,
+			},
+			expectedTotal: 311,
+		},
+		{
+			name: "CH1 MK1 CH1 MK1",
+			o: &order{
+				orderList: []string{"CH1", "MK1", "CH1", "MK1"},
+				priceList: []int64{311, 475, 311, 475},
+				items:     map[string]int{"CH1": 2, "MK1": 2},
+				total:     1572,
+			},
+			expectedTotal: 1097,
+		},
+	}
+
+	for _, tst := range tests {
+		t.Run(tst.name, func(t *testing.T) {
+			ordr := chmk(tst.o)
+			if ordr.total != tst.expectedTotal {
+				t.Errorf("Expected tota: %v, recieved total: %v", tst.expectedTotal, ordr.total)
+			}
+		})
+	}
+}
+
 func TestAPOMDiscount(t *testing.T) {
 	tests := []struct {
 		name          string
