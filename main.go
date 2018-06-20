@@ -10,7 +10,7 @@ import (
 // product contains the information about each product
 type product struct {
 	name  string
-	price int64
+	price int64 // price is saved in 'cents'
 	code  string
 }
 
@@ -20,12 +20,13 @@ type order struct {
 	orderList []string
 	priceList []int64
 	items     map[string]int
-	total     int64
+	total     int64 // total is saved in 'cents'
 }
 
 var prods = make(map[string]product)
 
 func init() {
+	// Need to set up the products and their prices
 	prods["CH1"] = product{
 		name:  "Chai",
 		price: 311,
@@ -100,10 +101,9 @@ func bogo(o *order) *order {
 	// 	discount:      -11.23,
 	// 	qualification: map[string]int{"CF1": 2},
 	// }
-
 	if o.items["CF1"] >= 2 {
 		numDiscounts := o.items["CF1"] / 2
-		o.total -= (int64(numDiscounts) * int64(1123))
+		o.total -= int64(numDiscounts) * int64(1123)
 	}
 	return o
 }
@@ -149,7 +149,7 @@ func apom(o *order) *order {
 			o.total -= int64(numOM) * 300
 		} else {
 			numDiscounts := math.Min(numOM, numAP)
-			o.total -= int64(numDiscounts) * 300
+			o.total -= int64(numDiscounts) * int64(300)
 		}
 	}
 	return o
